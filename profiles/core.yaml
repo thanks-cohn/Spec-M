@@ -1,0 +1,129 @@
+specm_version: "0.1-draft"
+profile:
+  id: "specm-core"
+  name: "Spec-M Core"
+  status: "DRAFT"
+  purpose: >-
+    Minimum canonical machine profile for a protected general-purpose kernel.
+    This profile is intentionally smaller than any one real architecture.
+
+required_capabilities:
+  - USER_MODE
+  - MONOTONIC_TIME
+  - DEADLINE_TIMER
+  - ADDRESS_SPACES
+  - TRANSLATION_SYNC
+  - PROTECTED_MAPPINGS
+  - INTERRUPT_MASK_CONTROL
+  - KERNEL_CONTEXT_SWITCH
+  - USERSPACE_ENTRY
+  - MMIO
+  - REBOOT_OR_SHUTDOWN
+
+optional_capabilities:
+  - SMP
+  - ADDRESS_SPACE_TAGS
+  - DMA
+  - PCIE
+  - VIRTIO
+  - HW_VIRTUALIZATION
+
+state_domains:
+  cpu:
+    required:
+      - identity
+      - execution_context
+      - privilege
+      - interrupt_mask
+      - active_address_space
+
+  memory:
+    required:
+      - physical_regions
+      - address_spaces
+      - mapping_permissions
+      - translation_visibility
+      - memory_ordering
+
+  execution:
+    required:
+      - kernel_context
+      - user_context
+      - trap_return_semantics
+
+  interrupt:
+    required:
+      - mask_state
+      - delivery
+
+  time:
+    required:
+      - monotonic_clock
+      - one_shot_deadline
+
+  boot:
+    required:
+      - normalized_memory_map
+      - kernel_image
+      - command_line
+
+  io:
+    required:
+      - mmio
+
+normative_invariants:
+  - id: "SPECM-INV-001"
+    name: "user-kernel-isolation"
+    statement: >-
+      User execution cannot access supervisor-only mappings or acquire kernel
+      privilege through a conforming Spec-M transition.
+
+  - id: "SPECM-INV-002"
+    name: "execute-permission-enforced"
+    statement: >-
+      Instruction fetch through a mapping lacking execute permission cannot
+      successfully execute that mapping.
+
+  - id: "SPECM-INV-003"
+    name: "write-permission-enforced"
+    statement: >-
+      Writes through a mapping lacking write permission cannot successfully
+      modify the protected mapping.
+
+  - id: "SPECM-INV-004"
+    name: "translation-sync-effective"
+    statement: >-
+      After the required translation synchronization completes, stale
+      translation state cannot preserve access that the current mapping state
+      forbids.
+
+  - id: "SPECM-INV-005"
+    name: "monotonic-time"
+    statement: >-
+      Spec-M monotonic time does not move backward within one boot domain.
+
+  - id: "SPECM-INV-006"
+    name: "ordering-contracts-hold"
+    statement: >-
+      Memory operations using Spec-M ordering semantics exhibit at least the
+      ordering guaranteed by the requested contract on every backend.
+
+backend_claims:
+  architecture_conforming_requires:
+    - "all required Core semantics implemented"
+    - "Core conformance suite passes"
+    - "negative protection tests pass"
+    - "ordering tests pass for the architecture memory model"
+
+  platform_conforming_requires:
+    - "architecture conformance"
+    - "named platform boot test passes"
+    - "timer and interrupt integration passes"
+    - "memory map/discovery validation passes"
+    - "declared optional profiles pass their suites"
+
+forbidden_claims_without_evidence:
+  - "runs on all hardware of this architecture"
+  - "portable kernel requires no platform backend"
+  - "backend is conforming because it compiles"
+  - "protection is equivalent without negative tests"
