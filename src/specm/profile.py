@@ -38,6 +38,17 @@ def load_profile(path: Path) -> dict[str, object]:
         raise ProfileError("required_capabilities must be a non-empty list")
     if len(required) != len(set(required)):
         raise ProfileError("required_capabilities contains duplicates")
+    if any(not isinstance(item, str) or not item for item in required):
+        raise ProfileError("required_capabilities entries must be non-empty strings")
+
+    optional = data.get("optional_capabilities", [])
+    if not isinstance(optional, list) or any(not isinstance(item, str) or not item for item in optional):
+        raise ProfileError("optional_capabilities must be a string list")
+    if len(optional) != len(set(optional)):
+        raise ProfileError("optional_capabilities contains duplicates")
+    overlap = sorted(set(required) & set(optional))
+    if overlap:
+        raise ProfileError(f"capabilities cannot be both required and optional: {', '.join(overlap)}")
 
     invariants = data.get("normative_invariants")
     if not isinstance(invariants, list) or not invariants:

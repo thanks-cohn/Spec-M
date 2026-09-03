@@ -1,0 +1,28 @@
+specm_version: "0.1-draft"
+backend:
+  id: rv64-qemu-virt
+  architecture: rv64
+  platform: qemu-virt
+profiles:
+  - ../../../profiles/core.yaml
+capabilities:
+  - USER_MODE
+  - MONOTONIC_TIME
+  - DEADLINE_TIMER
+  - ADDRESS_SPACES
+  - TRANSLATION_SYNC
+  - PROTECTED_MAPPINGS
+  - INTERRUPT_MASK_CONTROL
+  - KERNEL_CONTEXT_SWITCH
+  - USERSPACE_ENTRY
+  - MMIO
+  - REBOOT_OR_SHUTDOWN
+implemented_transitions: []
+claim:
+  profile: ../../../profiles/core.yaml
+  level: C0_SPECIFIED
+evidence: []
+limitations:
+  - Only the RV64 time-counter read boundary is source-complete; no QEMU execution evidence is recorded.
+  - QEMU virt timebase discovery and conversion to a declared Spec-M unit remain unresolved.
+  - No physical hardware support is claimed.

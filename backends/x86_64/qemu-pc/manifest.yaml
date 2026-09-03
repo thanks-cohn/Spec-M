@@ -1,0 +1,27 @@
+specm_version: "0.1-draft"
+backend:
+  id: x86-64-qemu-pc
+  architecture: x86-64
+  platform: qemu-pc-reference
+profiles:
+  - ../../../profiles/core.yaml
+capabilities:
+  - USER_MODE
+  - MONOTONIC_TIME
+  - DEADLINE_TIMER
+  - ADDRESS_SPACES
+  - TRANSLATION_SYNC
+  - PROTECTED_MAPPINGS
+  - INTERRUPT_MASK_CONTROL
+  - KERNEL_CONTEXT_SWITCH
+  - USERSPACE_ENTRY
+  - MMIO
+  - REBOOT_OR_SHUTDOWN
+implemented_transitions: []
+claim:
+  profile: ../../../profiles/core.yaml
+  level: C0_SPECIFIED
+evidence: []
+limitations:
+  - Declaration only; no architecture or platform implementation evidence is recorded.
+  - No physical hardware support is claimed.

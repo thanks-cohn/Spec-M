@@ -14,3 +14,12 @@ def test_model_smoke_reports_valid(capsys) -> None:
     payload = json.loads(capsys.readouterr().out)
     assert payload["valid"] is True
     assert len(payload["snapshot"]["cpus"]) == 2
+
+
+def test_validate_backend_cli_is_deterministic_json(capsys) -> None:
+    path = "backends/riscv64/qemu-virt/manifest.yaml"
+    assert main(["validate-backend", path]) == 0
+    first = capsys.readouterr().out
+    assert main(["validate-backend", path]) == 0
+    assert capsys.readouterr().out == first
+    assert json.loads(first)["claim"]["level"] == "C0_SPECIFIED"

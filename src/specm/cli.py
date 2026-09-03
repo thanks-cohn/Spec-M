@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
+from .backend import BackendError, backend_summary, load_backend
 from .model_backend import ModelMachine
 from .profile import ProfileError, load_profile, profile_summary
 from .registry import registry_document
@@ -38,6 +39,12 @@ def main(argv: list[str] | None = None) -> int:
     validate = sub.add_parser("validate-profile")
     validate.add_argument("profile", type=Path)
 
+    backend = sub.add_parser("validate-backend")
+    backend.add_argument("manifest", type=Path)
+
+    conformance = sub.add_parser("conformance")
+    conformance.add_argument("manifest", type=Path)
+
     sub.add_parser("transitions")
 
     model = sub.add_parser("model-smoke")
@@ -48,13 +55,15 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "validate-profile":
             _emit(profile_summary(load_profile(args.profile)))
+        elif args.command in ("validate-backend", "conformance"):
+            _emit(backend_summary(load_backend(args.manifest)))
         elif args.command == "transitions":
             _emit(registry_document())
         elif args.command == "model-smoke":
             _emit(_model_smoke(args.cpus))
         else:
             parser.error("unknown command")
-    except (OSError, ProfileError, ValueError, RuntimeError) as exc:
+    except (OSError, BackendError, ProfileError, ValueError, RuntimeError) as exc:
         _emit({"valid": False, "error": str(exc)})
         return 1
 

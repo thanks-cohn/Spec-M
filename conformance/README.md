@@ -15,19 +15,19 @@ A backend is conforming only to the extent that its declared Spec-M profile pass
 Spec-M uses progressively stronger evidence.
 
 ```text
-C0 STATIC
-    contract surface compiles and links
+C0 SPECIFIED
+    backend scope and intended transition mappings are declared and validate
 
-C1 UNIT
-    pure/backend-local unit tests pass
+C1 MODEL
+    deterministic semantic-model fixtures pass
 
-C2 TRANSITION
-    individual machine state-transition fixtures pass
+C2 UNIT
+    pure/backend-local and transition unit tests pass
 
-C3 NEGATIVE
-    protection and forbidden-state tests fail safely as specified
+C3 ARCH
+    architecture mechanisms pass transition and negative tests
 
-C4 MACHINE
+C4 PLATFORM
     tests pass under a named emulator/virtual machine/platform
 
 C5 KERNEL
@@ -41,6 +41,12 @@ C7 HARDWARE
 ```
 
 Claims must name the highest level actually established.
+
+Levels are cumulative. Evidence records are categorized as `model`, `unit`,
+`architecture`, `negative`, `platform`, `kernel`, `workload`, or `hardware`.
+C3 requires both architecture and negative evidence; compilation by itself is
+not architecture evidence. C7 additionally requires a named physical hardware
+model in the backend manifest.
 
 ## Core transition tests
 
