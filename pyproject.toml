@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "specm-machine"
+version = "0.1.0"
+description = "Reference tooling for the Spec-M canonical kernel-visible machine"
+requires-python = ">=3.10"
+dependencies = ["PyYAML>=6.0"]
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+
+[project.scripts]
+specm = "specm.cli:main"
+
+[tool.setuptools.package-data]
+specm = ["data/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
