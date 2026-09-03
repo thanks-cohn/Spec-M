@@ -1,0 +1,47 @@
+[
+  {
+    "id": "SPECM-CPU-001",
+    "name": "interrupt-mask-disable",
+    "domain": "cpu",
+    "intent": "Prevent maskable interrupt delivery to the current CPU until re-enabled.",
+    "preconditions": ["current CPU exists"],
+    "postconditions": ["maskable interrupt delivery is disabled for the current CPU"],
+    "invariants": ["privilege is not silently raised", "pending interrupt state is not discarded"]
+  },
+  {
+    "id": "SPECM-MM-001",
+    "name": "address-space-activate",
+    "domain": "memory",
+    "intent": "Make a supplied address space the active translation context for the current CPU.",
+    "preconditions": ["address-space descriptor is valid", "required kernel mappings exist"],
+    "postconditions": ["subsequent translations derive from the supplied address space", "stale translations cannot preserve access forbidden by current mappings after required synchronization"],
+    "invariants": ["kernel-required mappings remain accessible", "user/kernel isolation remains intact"]
+  },
+  {
+    "id": "SPECM-MM-002",
+    "name": "translation-sync",
+    "domain": "memory",
+    "intent": "Make translation visibility satisfy the requested synchronization scope.",
+    "preconditions": ["scope is valid", "affected mapping state has been published as required"],
+    "postconditions": ["translations in scope reflect the current mapping state according to the contract"],
+    "invariants": ["stale translations cannot bypass current permissions"]
+  },
+  {
+    "id": "SPECM-TIME-001",
+    "name": "monotonic-time-read",
+    "domain": "time",
+    "intent": "Return time from a monotonic boot-local clock domain.",
+    "preconditions": ["machine time source is initialized"],
+    "postconditions": ["returned value is greater than or equal to prior values in the same boot domain"],
+    "invariants": ["clock does not move backward within its defined domain"]
+  },
+  {
+    "id": "SPECM-EXEC-001",
+    "name": "userspace-enter",
+    "domain": "execution",
+    "intent": "Begin execution of a supplied user context at user privilege.",
+    "preconditions": ["user context is valid", "active address space permits the requested entry and stack"],
+    "postconditions": ["execution begins with user privilege and requested portable context state"],
+    "invariants": ["supervisor privilege is not retained", "supervisor-only mappings remain inaccessible"]
+  }
+]
