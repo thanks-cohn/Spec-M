@@ -52,3 +52,13 @@ boot under QEMU virt
 ```
 
 Then proceed pressure-by-pressure toward address spaces, traps, userspace entry, SMP, and standard devices.
+
+## Current executable pressure and blocker
+
+`../arch/time.h` is the single current RV64 mechanism: it reads architectural
+time ticks and can be cross-compiled independently.  This tests a real RV64
+instruction boundary rather than a stub.  It is not yet QEMU platform evidence.
+The next causal blocker is a minimal QEMU payload that obtains the `timebase-frequency`
+from normalized firmware data, converts ticks to the declared Spec-M unit, emits
+a deterministic trace, and runs under a pinned QEMU/OpenSBI combination.  Until
+that exists, the manifest remains C0 and explicitly forbids a platform claim.

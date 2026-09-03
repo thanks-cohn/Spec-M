@@ -1,47 +1,252 @@
 [
   {
-    "id": "SPECM-CPU-001",
-    "name": "interrupt-mask-disable",
     "domain": "cpu",
+    "failures": [
+      "invalid input fails without changing machine-visible state"
+    ],
+    "id": "SPECM-CPU-001",
+    "inputs": [],
     "intent": "Prevent maskable interrupt delivery to the current CPU until re-enabled.",
-    "preconditions": ["current CPU exists"],
-    "postconditions": ["maskable interrupt delivery is disabled for the current CPU"],
-    "invariants": ["privilege is not silently raised", "pending interrupt state is not discarded"]
+    "name": "interrupt-mask-disable",
+    "normative_invariants": [
+      "privilege is not silently raised",
+      "pending interrupt state is not discarded"
+    ],
+    "ordering": [
+      "transition effects are observable before successful completion"
+    ],
+    "outputs": [],
+    "postconditions": [
+      "maskable interrupt delivery is disabled for the current CPU"
+    ],
+    "preconditions": [
+      "current CPU exists"
+    ],
+    "privilege": [
+      "kernel"
+    ],
+    "required_capabilities": [
+      "INTERRUPT_MASK_CONTROL"
+    ]
   },
   {
+    "domain": "memory",
+    "failures": [
+      "invalid input fails without changing machine-visible state"
+    ],
     "id": "SPECM-MM-001",
-    "name": "address-space-activate",
-    "domain": "memory",
+    "inputs": [],
     "intent": "Make a supplied address space the active translation context for the current CPU.",
-    "preconditions": ["address-space descriptor is valid", "required kernel mappings exist"],
-    "postconditions": ["subsequent translations derive from the supplied address space", "stale translations cannot preserve access forbidden by current mappings after required synchronization"],
-    "invariants": ["kernel-required mappings remain accessible", "user/kernel isolation remains intact"]
+    "name": "address-space-activate",
+    "normative_invariants": [
+      "kernel-required mappings remain accessible",
+      "user/kernel isolation remains intact"
+    ],
+    "ordering": [
+      "transition effects are observable before successful completion"
+    ],
+    "outputs": [],
+    "postconditions": [
+      "subsequent translations derive from the supplied address space",
+      "stale translations cannot preserve access forbidden by current mappings after required synchronization"
+    ],
+    "preconditions": [
+      "address-space descriptor is valid",
+      "required kernel mappings exist"
+    ],
+    "privilege": [
+      "kernel"
+    ],
+    "required_capabilities": [
+      "ADDRESS_SPACES"
+    ]
   },
   {
-    "id": "SPECM-MM-002",
-    "name": "translation-sync",
     "domain": "memory",
+    "failures": [
+      "invalid input fails without changing machine-visible state"
+    ],
+    "id": "SPECM-MM-002",
+    "inputs": [],
     "intent": "Make translation visibility satisfy the requested synchronization scope.",
-    "preconditions": ["scope is valid", "affected mapping state has been published as required"],
-    "postconditions": ["translations in scope reflect the current mapping state according to the contract"],
-    "invariants": ["stale translations cannot bypass current permissions"]
+    "name": "translation-sync",
+    "normative_invariants": [
+      "stale translations cannot bypass current permissions"
+    ],
+    "ordering": [
+      "transition effects are observable before successful completion"
+    ],
+    "outputs": [],
+    "postconditions": [
+      "translations in scope reflect the current mapping state according to the contract"
+    ],
+    "preconditions": [
+      "scope is valid",
+      "affected mapping state has been published as required"
+    ],
+    "privilege": [
+      "kernel"
+    ],
+    "required_capabilities": [
+      "TRANSLATION_SYNC"
+    ]
   },
   {
-    "id": "SPECM-TIME-001",
-    "name": "monotonic-time-read",
     "domain": "time",
+    "failures": [
+      "invalid input fails without changing machine-visible state"
+    ],
+    "id": "SPECM-TIME-001",
+    "inputs": [],
     "intent": "Return time from a monotonic boot-local clock domain.",
-    "preconditions": ["machine time source is initialized"],
-    "postconditions": ["returned value is greater than or equal to prior values in the same boot domain"],
-    "invariants": ["clock does not move backward within its defined domain"]
+    "name": "monotonic-time-read",
+    "normative_invariants": [
+      "clock does not move backward within its defined domain"
+    ],
+    "ordering": [
+      "transition effects are observable before successful completion"
+    ],
+    "outputs": [],
+    "postconditions": [
+      "returned value is greater than or equal to prior values in the same boot domain"
+    ],
+    "preconditions": [
+      "machine time source is initialized"
+    ],
+    "privilege": [
+      "kernel"
+    ],
+    "required_capabilities": [
+      "MONOTONIC_TIME"
+    ]
   },
   {
-    "id": "SPECM-EXEC-001",
-    "name": "userspace-enter",
     "domain": "execution",
+    "failures": [
+      "invalid input fails without changing machine-visible state"
+    ],
+    "id": "SPECM-EXEC-001",
+    "inputs": [],
     "intent": "Begin execution of a supplied user context at user privilege.",
-    "preconditions": ["user context is valid", "active address space permits the requested entry and stack"],
-    "postconditions": ["execution begins with user privilege and requested portable context state"],
-    "invariants": ["supervisor privilege is not retained", "supervisor-only mappings remain inaccessible"]
+    "name": "userspace-enter",
+    "normative_invariants": [
+      "supervisor privilege is not retained",
+      "supervisor-only mappings remain inaccessible"
+    ],
+    "ordering": [
+      "transition effects are observable before successful completion"
+    ],
+    "outputs": [],
+    "postconditions": [
+      "execution begins with user privilege and requested portable context state"
+    ],
+    "preconditions": [
+      "user context is valid",
+      "active address space permits the requested entry and stack"
+    ],
+    "privilege": [
+      "kernel"
+    ],
+    "required_capabilities": [
+      "USERSPACE_ENTRY"
+    ]
+  },
+  {
+    "domain": "cpu",
+    "failures": [
+      "unknown or offline target is rejected without queuing an event"
+    ],
+    "id": "SPECM-CPU-002",
+    "inputs": [
+      "target CPU identity",
+      "portable signal kind"
+    ],
+    "intent": "Make a portable event pending for a named online CPU.",
+    "name": "cpu-signal",
+    "normative_invariants": [
+      "signals are delivered only to the named target"
+    ],
+    "ordering": [
+      "writes published before signaling are visible under the requested memory-order contract"
+    ],
+    "outputs": [
+      "delivery acceptance status"
+    ],
+    "postconditions": [
+      "accepted signal is pending for the target CPU"
+    ],
+    "preconditions": [
+      "target CPU exists and is online"
+    ],
+    "privilege": [
+      "kernel"
+    ],
+    "required_capabilities": [
+      "SMP"
+    ]
+  },
+  {
+    "domain": "time",
+    "failures": [
+      "past deadlines are rejected without replacing the current deadline"
+    ],
+    "id": "SPECM-TIME-002",
+    "inputs": [
+      "absolute monotonic deadline"
+    ],
+    "intent": "Program one future one-shot deadline in the monotonic clock domain.",
+    "name": "deadline-set",
+    "normative_invariants": [
+      "a programmed one-shot deadline cannot fire early"
+    ],
+    "ordering": [
+      "deadline state is installed before successful completion"
+    ],
+    "outputs": [
+      "programming status"
+    ],
+    "postconditions": [
+      "the deadline event becomes pending once monotonic time reaches the deadline",
+      "the deadline is consumed once"
+    ],
+    "preconditions": [
+      "deadline timer is initialized",
+      "deadline is not in the past"
+    ],
+    "privilege": [
+      "kernel"
+    ],
+    "required_capabilities": [
+      "DEADLINE_TIMER"
+    ]
+  },
+  {
+    "domain": "memory",
+    "failures": [
+      "unsupported ordering is rejected rather than weakened"
+    ],
+    "id": "SPECM-MEM-003",
+    "inputs": [
+      "portable memory-order contract"
+    ],
+    "intent": "Establish the requested portable ordering for memory observations.",
+    "name": "memory-fence",
+    "normative_invariants": [
+      "ordering contracts are never silently weakened"
+    ],
+    "ordering": [
+      "the requested ordering is the transition contract"
+    ],
+    "outputs": [],
+    "postconditions": [
+      "observations satisfy at least the requested ordering"
+    ],
+    "preconditions": [
+      "memory-order value is valid"
+    ],
+    "privilege": [
+      "kernel or user according to calling ABI"
+    ],
+    "required_capabilities": []
   }
 ]

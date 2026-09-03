@@ -21,13 +21,22 @@ class Transition:
     name: str
     domain: str
     intent: str
+    inputs: tuple[str, ...]
+    outputs: tuple[str, ...]
     preconditions: tuple[str, ...]
     postconditions: tuple[str, ...]
-    invariants: tuple[str, ...]
+    ordering: tuple[str, ...]
+    privilege: tuple[str, ...]
+    failures: tuple[str, ...]
+    normative_invariants: tuple[str, ...]
+    required_capabilities: tuple[str, ...]
 
     def to_dict(self) -> dict[str, object]:
         value = asdict(self)
-        for key in ("preconditions", "postconditions", "invariants"):
+        for key in (
+            "inputs", "outputs", "preconditions", "postconditions", "ordering",
+            "privilege", "failures", "normative_invariants", "required_capabilities",
+        ):
             value[key] = list(value[key])
         return value
 

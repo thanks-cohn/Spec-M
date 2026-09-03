@@ -24,6 +24,13 @@ Inspect the seeded semantic transition registry:
 specm transitions
 ```
 
+Validate a backend declaration and its evidence-bounded claim:
+
+```sh
+specm validate-backend backends/riscv64/qemu-virt/manifest.yaml
+specm conformance backends/riscv64/qemu-virt/manifest.yaml
+```
+
 Exercise the deterministic model backend:
 
 ```sh
@@ -32,6 +39,40 @@ specm model-smoke --cpus 4
 ```
 
 All command output is deterministic JSON suitable for agents, CI, and later conformance tooling.
+
+## Executable in this milestone
+
+- The transition registry carries inputs, outputs, preconditions,
+  postconditions, ordering, privilege, failure behavior, invariants, and
+  capability requirements. Missing fields and duplicate identities fail.
+- Backend manifests keep architecture and platform identities separate and are
+  checked against the Core profile, known transitions, and cumulative evidence
+  requirements.
+- The model exercises per-CPU interrupt/privilege/address-space state, stale
+  translation visibility, mapping permissions, monotonic time, one-shot
+  deadlines, CPU signals, ordering records, and normalized boot facts. Negative
+  fixtures prove rejection of unsafe userspace entry, clock regression,
+  unsynchronized permission assumptions, and unsupported conformance claims.
+- The RV64 architecture layer contains one real, cross-compilable `rdtime`
+  boundary. It returns raw architectural ticks only; it is not presented as a
+  completed platform clock.
+
+## Evidence and forbidden claims
+
+The deterministic Python suite establishes model/unit evidence for the tooling,
+not for either seeded machine backend. Both backend manifests therefore claim
+only C0_SPECIFIED. No QEMU boot, kernel integration, workload, or physical-board
+claim is established. In particular, a successful cross-compile is not C3
+architecture conformance and QEMU evidence could never establish C7 hardware.
+
+## Next causal backend blocker
+
+The next bounded step is a freestanding RV64 QEMU-virt payload which normalizes
+firmware-provided `timebase-frequency`, converts `rdtime` ticks into a declared
+Spec-M time unit, emits a deterministic monotonic trace, and runs with pinned
+QEMU/OpenSBI versions. This platform normalization must precede a truthful C4
+monotonic-time claim; timer interrupts, paging, and userspace should not be
+stubbed ahead of it.
 
 ## What the model backend is
 
@@ -95,22 +136,14 @@ SPECM-MM-001    address-space-activate
 SPECM-MM-002    translation-sync
 SPECM-TIME-001  monotonic-time-read
 SPECM-EXEC-001  userspace-enter
+SPECM-CPU-002   cpu-signal
+SPECM-TIME-002  deadline-set
+SPECM-MEM-003   memory-fence
 ```
 
 These entries are seeds, not a frozen standard.
 
 A new transition should be added only when real kernel or backend pressure demonstrates that the semantic property belongs in the canonical machine.
-
-## Next causal milestone
-
-The next useful implementation batch is:
-
-1. Add tests for profile validation, registry stability, and model invariants.
-2. Introduce a machine-readable backend manifest and conformance-claim validator.
-3. Add a C model backend or C conformance harness that consumes `include/specm/machine.h`.
-4. Define the first architecture backend boundary for RV64 without pretending QEMU-specific mechanisms are ISA semantics.
-5. Implement the first RV64/QEMU-virt transition end-to-end, ideally monotonic time or early console/boot discovery before paging complexity.
-6. Add negative tests that intentionally violate a contract and prove conformance catches them.
 
 Do not jump from a Python model directly to claims of hardware compatibility.
 
